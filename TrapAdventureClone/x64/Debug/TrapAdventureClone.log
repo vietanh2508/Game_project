@@ -1,7 +1,6 @@
-﻿  main.cpp
-F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u0111' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u01B0' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EE3' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EDF' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EA1' cannot be represented in the current code page (1252)
+﻿  game.cpp
+F:\TrapAdventureClone\TrapAdventureClone\game.cpp(25,22): warning C4566: character represented by universal-character-name '\u1ED7' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\game.cpp(25,22): warning C4566: character represented by universal-character-name '\u1EDF' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\game.cpp(25,22): warning C4566: character represented by universal-character-name '\u1EA1' cannot be represented in the current code page (1252)
+  LINK : F:\TrapAdventureClone\x64\Debug\TrapAdventureClone.exe not found or not built by the last incremental link; performing full link
   TrapAdventureClone.vcxproj -> F:\TrapAdventureClone\x64\Debug\TrapAdventureClone.exe

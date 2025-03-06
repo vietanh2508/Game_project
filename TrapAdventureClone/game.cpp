@@ -1,11 +1,11 @@
-#include"game.h"
+﻿#include"game.h"
 #include<iostream>
 
-Game::Game() : window(nullptr), renderer(nullptr), isRunning(false);
+Game::Game() : window(nullptr), isRunning(false) {};
 
 Game:: ~Game() {
-	if (renderer) delete renderer;
-	if (window) SDL_DestroyWindow(window);
+	renderer.ShutDown();
+	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
 
@@ -15,15 +15,16 @@ bool Game::init() {
         return false;
     }
 
-    window = SDL_CreateWindow("Trap Adventure 2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Trap Adventure Clone", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
     if (window == nullptr) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    renderer = new Renderer(window);
-    if (!renderer->init()) {
-        std::cerr << "Renderer could not be created!" << std::endl;
+    if (!renderer.init(window)) {
+        std::cerr << "Lỗi khởi tạo renderer." << std::endl;
+        SDL_DestroyWindow(window);
+        SDL_Quit();
         return false;
     }
 
@@ -36,5 +37,32 @@ void Game::run() {
     Uint32 currentTime;
     float deltaTime;
     
-    while(is)
+    while (isRunning) {
+        currentTime = SDL_GetTicks();
+        deltaTime = ( currentTime - lastTime ) / 1000.0f;
+        lastTime = currentTime;
+
+        handInput();
+        update(deltaTime);
+        render();
+    }
+}
+
+void Game::handInput() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
+            isRunning = false;
+        }
+    }
+}
+
+void Game::update(float deltaTime) {
+    // 
+}
+
+void Game::render() {
+    renderer.Clear();
+
+    renderer.Present();
 }

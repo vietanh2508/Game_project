@@ -3,7 +3,6 @@
 
 #include<SDL.h>
 #include"renderer.h"
-#include"player.h"
 
 class Game {
 public :
@@ -18,8 +17,7 @@ public :
 
 private:
 	SDL_Window* window;
-	SDL_Renderer* renderer;
-	Player player;
+	Renderer renderer;
 	bool isRunning;
 };
 
