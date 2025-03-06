@@ -1,0 +1,7 @@
+﻿  main.cpp
+F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u0111' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u01B0' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EE3' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EDF' cannot be represented in the current code page (1252)
+F:\TrapAdventureClone\TrapAdventureClone\main.cpp(16,18): warning C4566: character represented by universal-character-name '\u1EA1' cannot be represented in the current code page (1252)
+  TrapAdventureClone.vcxproj -> F:\TrapAdventureClone\x64\Debug\TrapAdventureClone.exe
