@@ -2,6 +2,7 @@
 #define RENDERER_H
 
 #include<SDL.h>
+#include<string>
 
 class Renderer {
 public:
@@ -12,9 +13,10 @@ public:
 	void ShutDown();
 	void Clear();
 	void Present();
+	SDL_Texture* LoadTexture(const std::string& path);
+	void RenderTexture(SDL_Texture* texture, const SDL_Rect& srcRect, const SDL_Rect& destRect, bool flip = false);
 
-
-	bool init();
+	SDL_Renderer* GetSDLRenderer() const { return renderer; }
 private:
 	SDL_Renderer* renderer;
 };

@@ -139,11 +139,15 @@ SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
+    <ClInclude Include="level.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,4 +1,5 @@
 ﻿#include"game.h"
+#include"level.h"
 #include<iostream>
 
 Game::Game() : window(nullptr), isRunning(false) {};
@@ -22,11 +23,15 @@ bool Game::init() {
     }
 
     if (!renderer.init(window)) {
-        std::cerr << "Lỗi khởi tạo renderer." << std::endl;
+        std::cerr << "Renderer could not be created!" << std::endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
         return false;
     }
+
+    player.LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
+    player.SetFrameSize(32, 32);
+    player.SetDisplaySize(64, 64);
 
     isRunning = true;
     return true;
@@ -50,19 +55,34 @@ void Game::run() {
 
 void Game::handInput() {
     SDL_Event event;
+    const Uint8* keystates = SDL_GetKeyboardState(nullptr);
+
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            isRunning = false;
-        }
+        if (event.type == SDL_QUIT) isRunning = false;
+    }
+
+    if (keystates[SDL_SCANCODE_LEFT]) {
+        player.MoveLeft();
+    }
+    else if (keystates[SDL_SCANCODE_RIGHT]) {
+        player.MoveRight();
+    }
+    else {
+        player.Stop();
+    }
+
+    if (keystates[SDL_SCANCODE_SPACE]) {
+        player.Jump();
     }
 }
 
 void Game::update(float deltaTime) {
-    // 
+    player.Update(deltaTime);
+    player.CheckGroundCollision(level.GetGroundTiles());
 }
 
 void Game::render() {
     renderer.Clear();
-
+    player.Render(renderer.GetSDLRenderer());
     renderer.Present();
 }
