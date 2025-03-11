@@ -1,8 +1,10 @@
-﻿#include"game.h"
-#include"level.h"
-#include<iostream>
+﻿#include <SDL.h>
+#include <SDL_image.h>
+#include <iostream>
+#include "game.h"
+#include "level.h"
 
-Game::Game() : window(nullptr), isRunning(false) {};
+Game::Game(): window(nullptr),isRunning(false),level(),renderer(),player() {}
 
 Game:: ~Game() {
 	renderer.ShutDown();
@@ -16,7 +18,7 @@ bool Game::init() {
         return false;
     }
 
-    window = SDL_CreateWindow("Trap Adventure Clone", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Trap Adventure Clone", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 640, SDL_WINDOW_SHOWN);
     if (window == nullptr) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
@@ -50,6 +52,7 @@ void Game::run() {
         handInput();
         update(deltaTime);
         render();
+
     }
 }
 
@@ -77,8 +80,7 @@ void Game::handInput() {
 }
 
 void Game::update(float deltaTime) {
-    player.Update(deltaTime);
-    player.CheckGroundCollision(level.GetGroundTiles());
+    player.Update(deltaTime, level.GetTilesAsRects());
 }
 
 void Game::render() {

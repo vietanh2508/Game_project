@@ -4,6 +4,7 @@
 #include<SDL.h>
 #include<vector>
 #include<string>
+#include"collision.h"
 
 class Player {
 public:
@@ -13,7 +14,7 @@ public:
 	~Player();
 
 	void LoadSprites(SDL_Renderer* renderer , const std::string& path);
-	void Update(float deltaTime);
+	void Update(float deltaTime, const std::vector<SDL_Rect>& tiles);
 	void Render(SDL_Renderer* renderer);
 
 	void MoveLeft();
@@ -24,7 +25,6 @@ public:
 	SDL_Rect GetRect() const { return destRect; }
 	void SetFrameSize(int width, int height);
 	void SetDisplaySize(int width, int height);
-	void CheckGroundCollision(const std::vector<SDL_Rect>& groundTiles);
 
 private:
 	void UpdateAnimation(float deltaTime);
@@ -38,7 +38,8 @@ private:
 	float frameTime, accumulator;
 	float velocityX, velocityY;
 	bool isFlipped, isOnGround;
-		
+	Collision collision;
+	float x, y;
 };
 
 #endif 

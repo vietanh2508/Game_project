@@ -1,15 +1,17 @@
-#include"player.h"
-#include<SDL.h>
-#include<SDL_image.h>
-#include<iostream>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <iostream>
+#include "player.h"
+#include "collision.h"
+#include "level.h"
 
 Player::Player()
     : texture(nullptr), currentState(State::IDLE),
     frameWidth(32), frameHeight(32),
     currentFrame(0), totalFrames(4),
-    frameTime(0.1f), accumulator(0.0f),
-    velocityX(0), velocityY(0),
-    isFlipped(false), isOnGround(false) {
+    frameTime(0.2f), accumulator(0.0f),
+    velocityX(0), velocityY(0), collision(),
+    isFlipped(false), isOnGround(false) , x(100) , y(100) {
     destRect = { 100, 100, 64, 64 };
     srcRect = { 0, 0, 32, 32 };
 }
@@ -41,45 +43,43 @@ void Player::SetDisplaySize(int width, int height) {
     destRect.h = height;
 }
 
-void Player::Update(float deltaTime) {
-    destRect.x += static_cast<int>(velocityX * deltaTime);
-    destRect.y += static_cast<int>(velocityY * deltaTime);
+void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles)    {
+    x += velocityX * deltaTime;
+    y += velocityY * deltaTime;
 
-    if (!isOnGround) velocityY += 980.0f * deltaTime;
-    if (velocityY > 1000.0f) velocityY = 1000.0f;
+    destRect.x = static_cast<int>(x);
+    destRect.y = static_cast<int>(y);
+
+    if (!isOnGround) velocityY += 2000.0f * deltaTime;
+
+    isOnGround = false;
+
+    collision.HandleCollisions(destRect, velocityX, velocityY, isOnGround, tiles);
 
     UpdateState();
     UpdateAnimation(deltaTime);
 }
 
 void Player::UpdateState() {
-    State previousState = currentState;
+    State newState = currentState;
 
-    if (velocityY < 0) {
-        currentState = State::JUMPING;
-    }
-    else if (velocityY > 0 && !isOnGround) {
-        currentState = State::FALLING;
-    }
-    else if (velocityX != 0) {
-        currentState = State::RUNNING;
+    if (isOnGround) {
+        newState = (velocityX != 0) ? State::RUNNING : State::IDLE;
     }
     else {
-        currentState = State::IDLE;
+        newState = (velocityY < 0) ? State::JUMPING : State::FALLING;
     }
 
-    if (currentState != previousState) {
+    if (newState != currentState) {
         currentFrame = 0;
         accumulator = 0.0f;
+        currentState = newState;
     }
+    
 }
 
 void Player::UpdateAnimation(float deltaTime) {
     accumulator += deltaTime;
-    if (accumulator >= frameTime) {
-        currentFrame = (currentFrame + 1) % totalFrames;
-        accumulator = 0.0f;
-    }
 
     switch (currentState) {
     case State::RUNNING:
@@ -87,7 +87,7 @@ void Player::UpdateAnimation(float deltaTime) {
         totalFrames = 4;
         break;
     case State::JUMPING:
-        srcRect.y = frameHeight;
+        srcRect.y = frameHeight * 1;
         totalFrames = 1;
         break;
     case State::FALLING:
@@ -99,9 +99,13 @@ void Player::UpdateAnimation(float deltaTime) {
         totalFrames = 1;
         break;
     }
+
+    if (accumulator >= frameTime) {
+        currentFrame = (currentFrame + 1) % totalFrames;
+        accumulator = 0.0f;
+    }
+
     srcRect.x = currentFrame * frameWidth;
-    srcRect.w = frameWidth;
-    srcRect.h = frameHeight;
 }
 
 void Player::Render(SDL_Renderer* renderer) {
@@ -112,12 +116,12 @@ void Player::Render(SDL_Renderer* renderer) {
 }
 
 void Player::MoveLeft() {
-    velocityX = -200.0f;
+    velocityX = -300.0f;
     isFlipped = true;
 }
 
 void Player::MoveRight() {
-    velocityX = 200.0f;
+    velocityX = 300.0f;
     isFlipped = false;
 }
 
@@ -132,21 +136,3 @@ void Player::Stop() {
     velocityX = 0;
 }
 
-void Player::CheckGroundCollision(const std::vector<SDL_Rect>& groundTiles) {
-    isOnGround = false;
-    SDL_Rect feet = {
-        destRect.x,
-        destRect.y + destRect.h - 5, 
-        destRect.w,
-        10
-    };
-
-    for (const auto& tile : groundTiles) {
-        if (SDL_HasIntersection(&feet, &tile)) {
-            isOnGround = true;
-            destRect.y = tile.y - destRect.h;
-            velocityY = 0;
-            break;
-        }
-    }
-}
