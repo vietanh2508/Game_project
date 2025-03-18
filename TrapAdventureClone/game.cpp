@@ -45,10 +45,10 @@ void Game::run() {
     Uint32 lastTime = SDL_GetTicks();
     Uint32 currentTime;
     float deltaTime;
-    
+
     while (isRunning) {
-        currentTime = SDL_GetTicks();
-        deltaTime = ( currentTime - lastTime ) / 1000.0f;
+        currentTime = SDL_GetTicks(); 
+        deltaTime = (currentTime - lastTime) / 1000.0f; 
         lastTime = currentTime;
 
         handleInput();

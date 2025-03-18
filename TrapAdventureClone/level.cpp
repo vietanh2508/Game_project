@@ -89,9 +89,9 @@ bool Level::LoadLevel(Renderer& renderer, const std::string& mapPath, const std:
             if (tileTextures.find(tileId) != tileTextures.end()) {
                 newTile.texture = tileTextures[tileId];
             }
-            // Trong Level::LoadLevel
-            newTile.rect.x = static_cast<int>(x) * tileWidth;  // Ép kiểu sang int để tránh sai số
-            newTile.rect.y = static_cast<int>(y) * tileHeight; // (nếu mapWidth/mapHeight là size_t)
+
+            newTile.rect.x = static_cast<int>(x) * tileWidth;  
+            newTile.rect.y = static_cast<int>(y) * tileHeight; 
             newTile.rect.w = tileWidth;
             newTile.rect.h = tileHeight;
             tiles.push_back(newTile);

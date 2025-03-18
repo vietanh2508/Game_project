@@ -45,13 +45,11 @@ void Player::SetDisplaySize(int width, int height) {
 }
 
 void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles) {
-    velocityY += 1500.0f * deltaTime;
+    velocityY += 1200.0f * deltaTime;
     
-    // Cập nhật vị trí tạm thời với vận tốc
     float newX = x + velocityX * deltaTime;
     float newY = y + velocityY * deltaTime;
 
-    // Tạo hitbox tạm thời
     SDL_Rect tempRect = {
         static_cast<int>(newX),
         static_cast<int>(newY),
@@ -59,21 +57,16 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles) {
         destRect.h = 16
     };
 
-    // Reset trạng thái va chạm
     isOnGround = false;
 
-    // Kiểm tra va chạm với vị trí mới
     collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
 
-    // Cập nhật vị trí thực tế sau va chạm
-    x = static_cast<float>(tempRect.x);
-    y = static_cast<float>(tempRect.y);
+    x += velocityX * deltaTime; 
+    y += velocityY * deltaTime;
 
-    // Cập nhật vị trí hiển thị
     destRect.x = static_cast<int>(x);
     destRect.y = static_cast<int>(y);
 
-    // Animation và state
     UpdateState();
     UpdateAnimation(deltaTime);
 }
@@ -102,6 +95,7 @@ void Player::UpdateAnimation(float deltaTime) {
     switch (currentState) {
     case State::RUNNING:
         srcRect.y = 0;
+        frameTime = 0.06f;
         totalFrames = 4;
         break;
     case State::JUMPING:
@@ -134,18 +128,18 @@ void Player::Render(SDL_Renderer* renderer) {
 }
 
 void Player::MoveLeft() {
-    velocityX = -500.0f;
+    velocityX = -200.0f;
     isFlipped = true;
 }
 
 void Player::MoveRight() {
-    velocityX = 500.0f;
+    velocityX = 200.0f;
     isFlipped = false;
 }
 
 void Player::Jump() {
     if (isOnGround) {
-        velocityY = -200.0f;
+        velocityY = -500.0f;
         isOnGround = false;
     }
 }
