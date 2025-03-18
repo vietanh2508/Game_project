@@ -1,9 +1,10 @@
-#ifndef PLAYER_H
+﻿#ifndef PLAYER_H
 #define PLAYER_H
 
 #include<SDL.h>
 #include<vector>
 #include<string>
+#include <algorithm>
 #include"collision.h"
 
 class Player {
@@ -31,7 +32,8 @@ private:
 	void UpdateState();
 	
 	SDL_Texture* texture;
-	SDL_Rect srcRect, destRect;
+	SDL_Rect srcRect; 
+	SDL_Rect destRect;
 	State currentState;
 	int frameWidth, frameHeight;
 	int currentFrame, totalFrames;

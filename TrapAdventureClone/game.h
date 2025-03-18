@@ -13,12 +13,12 @@ public :
 
 	bool init();
 	void run();
-	void handInput();
+	void handleInput();
 	void update(float deltaTime);
 	void render();
 
 private:
-	Level level;
+	Level* level;
 	SDL_Window* window;
 	Renderer renderer;
 	bool isRunning;

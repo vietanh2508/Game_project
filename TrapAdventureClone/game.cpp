@@ -4,9 +4,10 @@
 #include "game.h"
 #include "level.h"
 
-Game::Game(): window(nullptr),isRunning(false),level(),renderer(),player() {}
+Game::Game(): window(nullptr),isRunning(false),level(nullptr),renderer(),player() {}
 
 Game:: ~Game() {
+    if(level) delete level;
 	renderer.ShutDown();
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -31,9 +32,10 @@ bool Game::init() {
         return false;
     }
 
+    level = new Level(renderer, "assets/map/wall.csv", "assets/tiles/tile", 32, 32, 960 , 640);
     player.LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
-    player.SetFrameSize(32, 32);
-    player.SetDisplaySize(64, 64);
+    player.SetFrameSize(16, 16);
+    player.SetDisplaySize(16, 16);
 
     isRunning = true;
     return true;
@@ -49,14 +51,14 @@ void Game::run() {
         deltaTime = ( currentTime - lastTime ) / 1000.0f;
         lastTime = currentTime;
 
-        handInput();
+        handleInput();
         update(deltaTime);
         render();
 
     }
 }
 
-void Game::handInput() {
+void Game::handleInput() {
     SDL_Event event;
     const Uint8* keystates = SDL_GetKeyboardState(nullptr);
 
@@ -80,11 +82,18 @@ void Game::handInput() {
 }
 
 void Game::update(float deltaTime) {
-    player.Update(deltaTime, level.GetTilesAsRects());
+    if (level) {
+        const std::vector<Tile>& levelTiles = level->GetTiles();
+        std::vector<SDL_Rect> tileRects;
+        for (const auto& tile : levelTiles) {
+            tileRects.push_back(tile.rect);
+        }
+        player.Update(deltaTime, tileRects);
+    }
 }
-
 void Game::render() {
     renderer.Clear();
+    level->Render(renderer);
     player.Render(renderer.GetSDLRenderer());
     renderer.Present();
 }

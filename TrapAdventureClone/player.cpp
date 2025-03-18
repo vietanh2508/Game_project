@@ -1,19 +1,20 @@
-#include <SDL.h>
+﻿#include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include <algorithm>
 #include "player.h"
 #include "collision.h"
 #include "level.h"
 
 Player::Player()
     : texture(nullptr), currentState(State::IDLE),
-    frameWidth(32), frameHeight(32),
+    frameWidth(16), frameHeight(16),
     currentFrame(0), totalFrames(4),
     frameTime(0.2f), accumulator(0.0f),
     velocityX(0), velocityY(0), collision(),
-    isFlipped(false), isOnGround(false) , x(100) , y(100) {
-    destRect = { 100, 100, 64, 64 };
-    srcRect = { 0, 0, 32, 32 };
+    isFlipped(false), isOnGround(false) , x(0) , y(0) {
+    destRect = { 0, 0, 16, 16 };
+    srcRect = { 0, 0, 16, 16 };
 }
 
 Player :: ~Player() {
@@ -43,19 +44,36 @@ void Player::SetDisplaySize(int width, int height) {
     destRect.h = height;
 }
 
-void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles)    {
-    x += velocityX * deltaTime;
-    y += velocityY * deltaTime;
+void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles) {
+    velocityY += 1500.0f * deltaTime;
+    
+    // Cập nhật vị trí tạm thời với vận tốc
+    float newX = x + velocityX * deltaTime;
+    float newY = y + velocityY * deltaTime;
 
+    // Tạo hitbox tạm thời
+    SDL_Rect tempRect = {
+        static_cast<int>(newX),
+        static_cast<int>(newY),
+        destRect.w = 16,
+        destRect.h = 16
+    };
+
+    // Reset trạng thái va chạm
+    isOnGround = false;
+
+    // Kiểm tra va chạm với vị trí mới
+    collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
+
+    // Cập nhật vị trí thực tế sau va chạm
+    x = static_cast<float>(tempRect.x);
+    y = static_cast<float>(tempRect.y);
+
+    // Cập nhật vị trí hiển thị
     destRect.x = static_cast<int>(x);
     destRect.y = static_cast<int>(y);
 
-    if (!isOnGround) velocityY += 2000.0f * deltaTime;
-
-    isOnGround = false;
-
-    collision.HandleCollisions(destRect, velocityX, velocityY, isOnGround, tiles);
-
+    // Animation và state
     UpdateState();
     UpdateAnimation(deltaTime);
 }
@@ -116,18 +134,18 @@ void Player::Render(SDL_Renderer* renderer) {
 }
 
 void Player::MoveLeft() {
-    velocityX = -300.0f;
+    velocityX = -500.0f;
     isFlipped = true;
 }
 
 void Player::MoveRight() {
-    velocityX = 300.0f;
+    velocityX = 500.0f;
     isFlipped = false;
 }
 
 void Player::Jump() {
     if (isOnGround) {
-        velocityY = -400.0f;
+        velocityY = -200.0f;
         isOnGround = false;
     }
 }

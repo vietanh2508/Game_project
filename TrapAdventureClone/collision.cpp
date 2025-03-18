@@ -1,4 +1,4 @@
-#include "collision.h"
+﻿#include "collision.h"
 
 bool Collision::HandleCollisions(SDL_Rect& playerRect, float& velocityX, float& velocityY, bool& isOnGround, const std::vector<SDL_Rect>& tiles) {
     bool collided = false;
@@ -7,7 +7,7 @@ bool Collision::HandleCollisions(SDL_Rect& playerRect, float& velocityX, float& 
     for (const auto& tile : tiles) {
         if (CheckCollision(playerRect, tile)) {
             ResolveCollision(playerRect, velocityX, velocityY, isOnGround, tile);
-            collided = true;    
+            collided = true;
         }
     }
     return collided;
@@ -21,11 +21,18 @@ bool Collision::CheckCollision(const SDL_Rect& a, const SDL_Rect& b) const {
 }
 
 void Collision::ResolveCollision(SDL_Rect& playerRect, float& velocityX, float& velocityY, bool& isOnGround, const SDL_Rect& tile) {
+    // Tính toán overlap trên từng trục
+    float overlapX = (playerRect.x + playerRect.w - tile.x);
+    float overlapX2 = (tile.x + tile.w - playerRect.x);
+    float minOverlapX = std::min(overlapX, overlapX2);
 
-    float overlapX = std::min(playerRect.x + playerRect.w - tile.x, tile.x + tile.w - playerRect.x);
-    float overlapY = std::min(playerRect.y + playerRect.h - tile.y, tile.y + tile.h - playerRect.y);
+    float overlapY = (playerRect.y + playerRect.h - tile.y);
+    float overlapY2 = (tile.y + tile.h - playerRect.y);
+    float minOverlapY = std::min(overlapY, overlapY2);
 
-    if (overlapX < overlapY) {
+    // Xác định hướng va chạm dựa trên overlap nhỏ nhất
+    if (minOverlapX < minOverlapY) {
+        // Va chạm ngang
         if (playerRect.x < tile.x) {
             playerRect.x = tile.x - playerRect.w;
         }
@@ -35,14 +42,14 @@ void Collision::ResolveCollision(SDL_Rect& playerRect, float& velocityX, float& 
         velocityX = 0;
     }
     else {
+        // Va chạm dọc
         if (playerRect.y < tile.y) {
             playerRect.y = tile.y - playerRect.h;
-            velocityY = 0;
-            isOnGround = true;
+            isOnGround = true; // Chỉ set isOnGround khi chạm từ trên xuống
         }
         else {
             playerRect.y = tile.y + tile.h;
-            velocityY = 0;
         }
+        velocityY = 0;
     }
 }
