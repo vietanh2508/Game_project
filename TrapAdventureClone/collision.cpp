@@ -36,8 +36,15 @@ void Collision::ResolveCollision(SDL_Rect& playerRect, float& velocityX, float& 
         playerRect.x = (playerRect.x < tile.x) ? tile.x - playerRect.w : tile.x + tile.w;
     }
     else {
-        velocityY = 0;
-        playerRect.y = (playerRect.y < tile.y) ? tile.y - playerRect.h : tile.y + tile.h;
-        isOnGround = (playerRect.y < tile.y);
+        if (playerRect.y + playerRect.h <= tile.y + (tile.h / 2)) {
+            isOnGround = true;
+            velocityY = 0;
+            playerRect.y = tile.y - playerRect.h;
+        }
+        else {
+            velocityY = 0;
+            playerRect.y = tile.y + tile.h;
+            isOnGround = false;
+        }
     }
 }

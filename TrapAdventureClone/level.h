@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "trap.h"
 
 class Renderer;
 
@@ -15,15 +16,30 @@ struct Tile {
 
 class Level {
 public:
-    Level(Renderer& renderer, const std::string& mapPath, const std::string& tileBasePath, int tileWidth, int tileHeight, int mapWidth, int mapHeight);
+    Level(
+        Renderer& renderer,
+        const std::string& mapPath,     
+        const std::string& tileBasePath, 
+        const std::string& trapPath,     
+        const std::string& trapTexturePath, 
+        int tileWidth, int tileHeight,
+        int mapWidth, int mapHeight
+    );
     ~Level();
 
     void Render(Renderer& renderer);
     const std::vector<Tile>& GetTiles() const { return tiles; }
-
+    const std::vector<Trap>& GetTraps() const;
 private:
-    bool LoadLevel(Renderer& renderer, const std::string& mapPath, const std::string& tileBasePath, int tileWidth, int tileHeight);
-
+    bool LoadLevel(
+        Renderer& renderer,
+        const std::string& mapPath,
+        const std::string& tileBasePath,
+        const std::string& trapPath,
+        const std::string& trapTexturePath,
+        int tileWidth, int tileHeight
+    );
+    std::vector<Trap> traps;
     std::vector<Tile> tiles;
     int mapWidth;
     int mapHeight;

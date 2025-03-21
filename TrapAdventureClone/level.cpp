@@ -6,9 +6,16 @@
 #include <set>
 #include "renderer.h"
 
-Level::Level(Renderer& renderer, const std::string& mapPath, const std::string& tileBasePath, int tileWidth, int tileHeight, int mapWidth, int mapHeight)
-    : tileWidth(tileWidth), tileHeight(tileHeight), mapWidth(mapWidth), mapHeight(mapHeight) {
-    if (!LoadLevel(renderer, mapPath, tileBasePath, tileWidth, tileHeight)) {
+Level::Level(
+    Renderer& renderer,
+    const std::string& mapPath,
+    const std::string& tileBasePath,
+    const std::string& trapPath,
+    const std::string& trapTexturePath,
+    int tileWidth, int tileHeight,
+    int mapWidth, int mapHeight
+) : tileWidth(tileWidth), tileHeight(tileHeight), mapWidth(mapWidth), mapHeight(mapHeight) {
+    if (!LoadLevel(renderer, mapPath, tileBasePath, trapPath, trapTexturePath, tileWidth, tileHeight)) {
         std::cerr << "Failed to load level!" << std::endl;
     }
 }
@@ -21,7 +28,14 @@ Level::~Level() {
     }
 }
 
-bool Level::LoadLevel(Renderer& renderer, const std::string& mapPath, const std::string& tileBasePath, int tileWidth, int tileHeight) {
+bool Level::LoadLevel(
+    Renderer& renderer,
+    const std::string& mapPath,
+    const std::string& tileBasePath,
+    const std::string& trapPath,
+    const std::string& trapTexturePath,
+    int tileWidth, int tileHeight
+ ) {
     std::ifstream file(mapPath);
     if (!file.is_open()) {
         std::cerr << "Failed to open map file: " << mapPath << std::endl;
@@ -68,7 +82,7 @@ bool Level::LoadLevel(Renderer& renderer, const std::string& mapPath, const std:
             }
         }
     }
-
+        
     tileTextures.clear();
     for (int tileId : uniqueTileIds) {
         std::string tilePath = tileBasePath + std::to_string(tileId) + ".png";
@@ -98,6 +112,44 @@ bool Level::LoadLevel(Renderer& renderer, const std::string& mapPath, const std:
         }
     }
 
+    std::map<int, SDL_Texture*> trapTextures;
+    trapTextures[0] = renderer.LoadTexture(trapTexturePath + "0.png"); // Bẫy trái
+    trapTextures[2] = renderer.LoadTexture(trapTexturePath + "2.png"); // Bẫy lên
+    trapTextures[8] = renderer.LoadTexture(trapTexturePath + "8.png"); // Bẫy phải
+    trapTextures[10] = renderer.LoadTexture(trapTexturePath + "10.png"); // Bẫy xuống
+
+    std::ifstream trapFile(trapPath);
+    if (!trapFile.is_open()) {
+        std::cerr << "Failed to open trap file: " << trapPath << std::endl;
+        return false;
+    }
+
+    std::string lineT;
+    int y = 0;
+    while (std::getline(trapFile, lineT)) {
+        std::stringstream ss(lineT);
+        std::string cell;
+        int x = 0;
+        while (std::getline(ss, cell, ',')) {
+            int cellValue = std::stoi(cell);
+            if (cellValue == 0 || cellValue == 2 || cellValue == 8 || cellValue == 10) {
+                SDL_Texture* texture = trapTextures[cellValue];
+                if (texture) {
+                    traps.emplace_back(
+                        x * tileWidth,   
+                        y * tileHeight,  
+                        32,
+                        32,
+                        texture
+                    );
+                }
+            }
+            x++;
+        }
+        y++;
+    }
+    trapFile.close();
+
     return true;
 }
 
@@ -108,4 +160,13 @@ void Level::Render(Renderer& renderer) {
             renderer.RenderTexture(tile.texture, srcRect, tile.rect);
         }
     }
+
+    for (const auto& trap : traps) {
+        SDL_Rect srcRect = { 0, 0, tileWidth, tileHeight };
+        renderer.RenderTexture(trap.GetTexture(), srcRect, trap.GetRect());
+    }
+}
+
+const std::vector<Trap>& Level::GetTraps() const {
+    return traps;
 }

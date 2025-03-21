@@ -1,2 +1,8 @@
-﻿  player.cpp
+﻿  game.cpp
+  level.cpp
+F:\TrapAdventureClone\TrapAdventureClone\level.cpp(57,49): warning C4101: 'e': unreferenced local variable
+  main.cpp
+  player.cpp
+  trap.cpp
+  Generating Code...
   TrapAdventureClone.vcxproj -> F:\TrapAdventureClone\x64\Debug\TrapAdventureClone.exe

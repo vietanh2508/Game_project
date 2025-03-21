@@ -1,20 +1,23 @@
-﻿#include <SDL.h>
-#include <SDL_image.h>
+﻿#include <SDL_image.h>
 #include <iostream>
 #include <algorithm>
 #include "player.h"
 #include "collision.h"
 #include "level.h"
+#include "trap.h"
+
+const int SCREEN_WIDTH = 960;
+const int SCREEN_HEIGHT = 640;
 
 Player::Player()
     : texture(nullptr), currentState(State::IDLE),
-    frameWidth(16), frameHeight(16),
+    frameWidth(32), frameHeight(32),
     currentFrame(0), totalFrames(4),
-    frameTime(0.2f), accumulator(0.0f),
+    frameTime(1.0f), accumulator(0.0f),
     velocityX(0), velocityY(0), collision(),
-    isFlipped(false), isOnGround(false) , x(0) , y(0) {
-    destRect = { 0, 0, 16, 16 };
-    srcRect = { 0, 0, 16, 16 };
+    isFlipped(false), isOnGround(false) ,isAlive(true) {
+    destRect = { 0, 16, 32, 32 };
+    srcRect = { 0, 0, 32, 32 };
 }
 
 Player :: ~Player() {
@@ -44,35 +47,49 @@ void Player::SetDisplaySize(int width, int height) {
     destRect.h = height;
 }
 
-void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles) {
-    velocityY += 1200.0f * deltaTime;
+void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const std::vector<Trap>& traps) {
+    if (!isAlive) return;
+    velocityY += 1000.0f * deltaTime;
     
-    float newX = x + velocityX * deltaTime;
-    float newY = y + velocityY * deltaTime;
+    float newX = destRect.x + velocityX * deltaTime;
+    float newY = destRect.y + velocityY * deltaTime;
 
     SDL_Rect tempRect = {
         static_cast<int>(newX),
         static_cast<int>(newY),
-        destRect.w = 16,
-        destRect.h = 16
+        destRect.w ,
+        destRect.h
     };
 
     isOnGround = false;
 
     collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
 
-    x += velocityX * deltaTime; 
-    y += velocityY * deltaTime;
+    for (const auto& trap : traps) {
+        if (collision.CheckCollision(destRect, trap.GetRect())) {
+            isAlive = false;
+            velocityX = 0; 
+            velocityY = 0;
+            break;
+        }
+    }
 
-    destRect.x = static_cast<int>(x);
-    destRect.y = static_cast<int>(y);
+    destRect.x = tempRect.x;
+    destRect.y = tempRect.y;
+
+    if (isAlive) {
+        if (destRect.x < 0) destRect.x = 0;
+        if (destRect.x + destRect.w > SCREEN_WIDTH) destRect.x = SCREEN_WIDTH - destRect.w;
+        if (destRect.y < 0) destRect.y = 0;
+    }
+
 
     UpdateState();
     UpdateAnimation(deltaTime);
-}
+}        
 
 void Player::UpdateState() {
-    State newState = currentState;
+    State newState;
 
     if (isOnGround) {
         newState = (velocityX != 0) ? State::RUNNING : State::IDLE;
@@ -86,7 +103,6 @@ void Player::UpdateState() {
         accumulator = 0.0f;
         currentState = newState;
     }
-    
 }
 
 void Player::UpdateAnimation(float deltaTime) {
@@ -94,29 +110,28 @@ void Player::UpdateAnimation(float deltaTime) {
 
     switch (currentState) {
     case State::RUNNING:
-        srcRect.y = 0;
-        frameTime = 0.06f;
-        totalFrames = 4;
+        srcRect.y = 0;       
+        frameTime = 0.1f;    
+        totalFrames = 4;     
         break;
     case State::JUMPING:
-        srcRect.y = frameHeight * 1;
+        srcRect.y = 32;    
         totalFrames = 1;
         break;
     case State::FALLING:
-        srcRect.y = frameHeight * 2;
+        srcRect.y = 64;      
         totalFrames = 1;
         break;
     case State::IDLE:
-        srcRect.y = frameHeight * 3;
+        srcRect.y = 96;      
         totalFrames = 1;
         break;
     }
-
+                                  
     if (accumulator >= frameTime) {
         currentFrame = (currentFrame + 1) % totalFrames;
         accumulator = 0.0f;
     }
-
     srcRect.x = currentFrame * frameWidth;
 }
 
@@ -128,18 +143,18 @@ void Player::Render(SDL_Renderer* renderer) {
 }
 
 void Player::MoveLeft() {
-    velocityX = -200.0f;
+    if (isAlive) velocityX = -200.0f;
     isFlipped = true;
 }
 
 void Player::MoveRight() {
-    velocityX = 200.0f;
+    if (isAlive) velocityX = 200.0f;
     isFlipped = false;
 }
 
 void Player::Jump() {
-    if (isOnGround) {
-        velocityY = -500.0f;
+    if (isOnGround && isAlive) {
+        velocityY = -450.0f;
         isOnGround = false;
     }
 }

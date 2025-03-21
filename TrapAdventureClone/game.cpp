@@ -8,7 +8,7 @@ Game::Game(): window(nullptr),isRunning(false),level(nullptr),renderer(),player(
 
 Game:: ~Game() {
     if(level) delete level;
-	renderer.ShutDown();
+	renderer.~Renderer() ;
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
@@ -32,9 +32,17 @@ bool Game::init() {
         return false;
     }
 
-    level = new Level(renderer, "assets/map/wall.csv", "assets/tiles/tile", 32, 32, 960 , 640);
+    level = new Level(
+        renderer,
+        "assets/map/wall.csv",      
+        "assets/tiles/tile",       
+        "assets/map/trap.csv",      
+        "assets/tiles/trap",       
+        32, 32,                    
+        960, 640                    
+    );
     player.LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
-    player.SetFrameSize(16, 16);
+    player.SetFrameSize(32, 32);
     player.SetDisplaySize(16, 16);
 
     isRunning = true;
@@ -47,7 +55,7 @@ void Game::run() {
     float deltaTime;
 
     while (isRunning) {
-        currentTime = SDL_GetTicks(); 
+        currentTime = SDL_GetTicks();
         deltaTime = (currentTime - lastTime) / 1000.0f; 
         lastTime = currentTime;
 
@@ -55,6 +63,11 @@ void Game::run() {
         update(deltaTime);
         render();
 
+        // Giới hạn FPS
+        Uint32 frameTime = SDL_GetTicks() - currentTime;
+        if (frameTime < TARGET_FRAME_TIME) {
+            SDL_Delay(TARGET_FRAME_TIME - frameTime); 
+        }
     }
 }
 
@@ -84,11 +97,12 @@ void Game::handleInput() {
 void Game::update(float deltaTime) {
     if (level) {
         const std::vector<Tile>& levelTiles = level->GetTiles();
+        const std::vector<Trap>& levelTraps = level->GetTraps();
         std::vector<SDL_Rect> tileRects;
         for (const auto& tile : levelTiles) {
             tileRects.push_back(tile.rect);
         }
-        player.Update(deltaTime, tileRects);
+        player.Update(deltaTime, tileRects, levelTraps);
     }
 }
 void Game::render() {

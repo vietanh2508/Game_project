@@ -1,5 +1,5 @@
-﻿#include<SDL.h>
-#include<iostream>
+﻿#include <SDL.h>
+#include <iostream>
 #include"game.h"
 
 int main(int agrc, char* agrv[]) {

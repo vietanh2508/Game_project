@@ -1,12 +1,14 @@
-#include"renderer.h"
-#include<SDL.h>
 #include<SDL_image.h>
 #include<iostream>
+#include"renderer.h"
 
 Renderer::Renderer() : renderer(nullptr) {};
 
 Renderer::~Renderer() {
-	ShutDown();
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
+    }
 }
 
 bool Renderer::init(SDL_Window* window) {
@@ -17,13 +19,6 @@ bool Renderer::init(SDL_Window* window) {
     }
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     return true;
-}
-
-void Renderer::ShutDown() {
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
-    }
 }
 
 void Renderer::Clear() {

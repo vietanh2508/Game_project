@@ -10,7 +10,6 @@ public:
 	~Renderer();
 
 	bool init(SDL_Window* window);
-	void ShutDown();
 	void Clear();
 	void Present();
 	SDL_Texture* LoadTexture(const std::string& path);

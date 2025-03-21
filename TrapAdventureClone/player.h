@@ -4,18 +4,18 @@
 #include<SDL.h>
 #include<vector>
 #include<string>
-#include <algorithm>
-#include"collision.h"
-
+#include "collision.h"
+#include "trap.h"
+                   
 class Player {
 public:
-	enum class State { IDLE, RUNNING, JUMPING, FALLING};
+	enum class State { RUNNING, JUMPING, FALLING, IDLE };
 		
 	Player();
 	~Player();
 
 	void LoadSprites(SDL_Renderer* renderer , const std::string& path);
-	void Update(float deltaTime, const std::vector<SDL_Rect>& tiles);
+	void Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const std::vector<Trap>& traps);
 	void Render(SDL_Renderer* renderer);
 
 	void MoveLeft();
@@ -30,7 +30,8 @@ public:
 private:
 	void UpdateAnimation(float deltaTime);
 	void UpdateState();
-	
+
+	Collision collision;
 	SDL_Texture* texture;
 	SDL_Rect srcRect; 
 	SDL_Rect destRect;
@@ -40,8 +41,7 @@ private:
 	float frameTime, accumulator;
 	float velocityX, velocityY;
 	bool isFlipped, isOnGround;
-	Collision collision;
-	float x, y;
+	bool isAlive;
 };
 
 #endif 
