@@ -96,12 +96,14 @@ void Game::handleInput() {
 
 void Game::update(float deltaTime) {
     if (level) {
+        const SDL_Rect playerRect = player.GetRect();
         const std::vector<Tile>& levelTiles = level->GetTiles();
         const std::vector<Trap>& levelTraps = level->GetTraps();
         std::vector<SDL_Rect> tileRects;
         for (const auto& tile : levelTiles) {
             tileRects.push_back(tile.rect);
         }
+        level->Update(deltaTime, player.GetRect(), tileRects);
         player.Update(deltaTime, tileRects, levelTraps);
     }
 }

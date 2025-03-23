@@ -30,7 +30,7 @@ public:
     void Render(Renderer& renderer);
     const std::vector<Tile>& GetTiles() const { return tiles; }
     const std::vector<Trap>& GetTraps() const;
-private:
+    void Update(float deltaTime, const SDL_Rect& playerRect, const std::vector<SDL_Rect>& walls);
     bool LoadLevel(
         Renderer& renderer,
         const std::string& mapPath,
