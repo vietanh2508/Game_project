@@ -3,15 +3,16 @@
 
 #include <SDL.h>
 #include "renderer.h"
+#include "audio.h"
 
 class Menu {
 public:
     enum class State {
-        MAIN_MENU,    
-        IN_GAME      
+        MAIN_MENU,
+        IN_GAME
     };
 
-    Menu(Renderer& renderer);
+    Menu(Renderer& renderer, Audio& audio);
     ~Menu();
 
     void HandleEvent(SDL_Event& event);
@@ -29,6 +30,7 @@ public:
 
 private:
     Renderer& renderer;
+    Audio& audio;
     Action currentAction;
 
     SDL_Texture* playTexture;

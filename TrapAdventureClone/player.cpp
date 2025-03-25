@@ -10,13 +10,13 @@
 const int SCREEN_WIDTH = 960;
 const int SCREEN_HEIGHT = 640;
 
-Player::Player()
+Player::Player(Audio& audio) 
     : texture(nullptr), currentState(State::IDLE),
     frameWidth(32), frameHeight(32),
     currentFrame(0), totalFrames(4),
     frameTime(1.0f), accumulator(0.0f),
     velocityX(0), velocityY(0), collision(),
-    isFlipped(false), isOnGround(false), isAlive(true) {
+    isFlipped(false), isOnGround(false), isAlive(true), audio(audio) {
     destRect = { 0, 16, 32, 32 };
     srcRect = { 0, 0, 32, 32 };
 }
@@ -48,10 +48,10 @@ void Player::SetDisplaySize(int width, int height) {
     destRect.h = height;
 }
 
-void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const std::vector<Trap>& traps) {
+void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const std::vector<Trap>& traps) {
     if (!isAlive) return;
     velocityY += 900.0f * deltaTime;
-    
+
     float newX = destRect.x + velocityX * deltaTime;
     float newY = destRect.y + velocityY * deltaTime;
 
@@ -67,8 +67,9 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const 
     for (const auto& trap : traps) {
         if (collision.CheckCollision(destRect, trap.GetRect())) {
             isAlive = false;
-            velocityX = 0; 
+            velocityX = 0;
             velocityY = 0;
+            audio.PlaySound("death");
             break;
         }
     }
@@ -84,7 +85,7 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const 
 
     UpdateState();
     UpdateAnimation(deltaTime);
-}        
+}
 
 void Player::UpdateState() {
     State newState;
@@ -108,24 +109,28 @@ void Player::UpdateAnimation(float deltaTime) {
 
     switch (currentState) {
     case State::RUNNING:
-        srcRect.y = 0;       
-        frameTime = 0.1f;    
-        totalFrames = 4;     
+        srcRect.y = 0;
+        frameTime = 0.1f;
+        totalFrames = 4;
+        if (!Mix_Playing(-1)) // Check if any channel is currently playing sound
+        {
+            audio.PlaySound("run");
+        }
         break;
     case State::JUMPING:
-        srcRect.y = 32;    
+        srcRect.y = 32;
         totalFrames = 1;
         break;
     case State::FALLING:
-        srcRect.y = 64;      
+        srcRect.y = 64;
         totalFrames = 1;
         break;
     case State::IDLE:
-        srcRect.y = 96;      
+        srcRect.y = 96;
         totalFrames = 1;
         break;
     }
-                                  
+
     if (accumulator >= frameTime) {
         currentFrame = (currentFrame + 1) % totalFrames;
         accumulator = 0.0f;
@@ -158,10 +163,10 @@ void Player::Jump() {
     if (isOnGround && isAlive) {
         velocityY = -450.0f;
         isOnGround = false;
+        audio.PlaySound("jump");
     }
 }
 
 void Player::Stop() {
     velocityX = 0;
 }
-

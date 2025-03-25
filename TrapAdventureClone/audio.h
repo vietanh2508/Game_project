@@ -13,6 +13,7 @@ public:
     bool Init(); // Initialize SDL_mixer
     void LoadSound(const std::string& name, const std::string& filepath);
     void PlaySound(const std::string& name, int loops = 0);
+    void StopSound(const std::string& name);
     void StopAllSounds();
 
 private:

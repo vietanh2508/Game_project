@@ -11,16 +11,16 @@ Game::Game()
     : window(nullptr),
     isRunning(false),
     level(nullptr),
-    renderer(), player(), menu(nullptr) {
+    renderer(), menu(nullptr) {
     currentGameState = GameState::MENU;
 }
 
 Game:: ~Game() {
-    if(level) delete level;
+    if (level) delete level;
     if (menu) delete menu;
-	SDL_DestroyWindow(window);
+    SDL_DestroyWindow(window);
     IMG_Quit();
-	SDL_Quit();
+    SDL_Quit();
 }
 
 bool Game::init() {
@@ -47,7 +47,7 @@ bool Game::init() {
         SDL_DestroyWindow(window);
         SDL_Quit();
         return false;
-    }  
+    }
 
     gameOverTexture = renderer.LoadTexture("assets/image/game_over.png");
     if (!gameOverTexture) {
@@ -55,19 +55,29 @@ bool Game::init() {
         return false;
     }
 
-    menu = new Menu(renderer);
+    if (!audio.Init()) {
+        return false;
+    }
+
+    player = new Player(audio);
+    audio.LoadSound("button_click", "assets/sound/button_click.wav");
+    audio.LoadSound("run", "assets/sound/run.wav");
+    audio.LoadSound("jump", "assets/sound/jump.wav");
+    audio.LoadSound("death", "assets/sound/death.wav");
+
+    menu = new Menu(renderer, audio);  
     level = new Level(
         renderer,
-        "assets/map/wall.csv",      
-        "assets/tiles/tile",       
-        "assets/map/trap.csv",      
-        "assets/tiles/trap",       
-        32, 32,                    
-        960, 640                    
+        "assets/map/wall.csv",
+        "assets/tiles/tile",
+        "assets/map/trap.csv",
+        "assets/tiles/trap",
+        32, 32,
+        960, 640
     );
-    player.LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
-    player.SetFrameSize(32, 32);
-    player.SetDisplaySize(16, 16);
+    player->LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
+    player->SetFrameSize(32, 32);
+    player->SetDisplaySize(16, 16);
     isRunning = true;
     return true;
 }
@@ -79,7 +89,7 @@ void Game::run() {
 
     while (isRunning) {
         currentTime = SDL_GetTicks();
-        deltaTime = (currentTime - lastTime) / 1000.0f; 
+        deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
 
         handleInput();
@@ -89,7 +99,7 @@ void Game::run() {
         // Giới hạn FPS
         Uint32 frameTime = SDL_GetTicks() - currentTime;
         if (frameTime < TARGET_FRAME_TIME) {
-            SDL_Delay(TARGET_FRAME_TIME - frameTime); 
+            SDL_Delay(TARGET_FRAME_TIME - frameTime);
         }
     }
 }
@@ -131,21 +141,21 @@ void Game::handleInput() {
         if (menu->GetAction() == Menu::Action::EXIT) {
             isRunning = false;
         }
-        const Uint8* state = SDL_GetKeyboardState(NULL); 
+        const Uint8* state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_LEFT])
         {
-            player.MoveLeft();
+            player->MoveLeft();
         }
         else if (state[SDL_SCANCODE_RIGHT])
         {
-            player.MoveRight();
+            player->MoveRight();
         }
         else {
-            player.Stop();
+            player->Stop();
         }
-        if (state[SDL_SCANCODE_SPACE] )
+        if (state[SDL_SCANCODE_SPACE])
         {
-            player.Jump();
+            player->Jump();
         }
     }
 }
@@ -154,7 +164,7 @@ void Game::update(float deltaTime) {
     switch (currentGameState) {
     case GameState::PLAYING: {
         if (level) {
-            const SDL_Rect playerRect = player.GetRect();
+            const SDL_Rect playerRect = player->GetRect();
             const std::vector<Tile>& levelTiles = level->GetTiles();
             const std::vector<Trap>& levelTraps = level->GetTraps();
             std::vector<SDL_Rect> tileRects;
@@ -164,7 +174,7 @@ void Game::update(float deltaTime) {
             }
 
             level->Update(deltaTime, playerRect, tileRects);
-            player.Update(deltaTime, tileRects, levelTraps);
+            player->Update(deltaTime, tileRects, levelTraps);
         }
         break;
     }
@@ -188,11 +198,11 @@ void Game::render() {
     }
     else if (currentGameState == GameState::PLAYING || currentGameState == GameState::PAUSED) {
         level->Render(renderer);
-        player.Render(renderer.GetSDLRenderer());
+        player->Render(renderer.GetSDLRenderer());
         menu->Render(Menu::State::IN_GAME);
 
-        if (!player.isAlive) {
-            SDL_Rect gameOverRect = { 300, 200, 232, 123 }; 
+        if (!player->isAlive) {
+            SDL_Rect gameOverRect = { 300, 200, 232, 123 };
             renderer.RenderTexture(gameOverTexture, SDL_Rect{ 0, 0, 960, 640 }, gameOverRect);
         }
     }

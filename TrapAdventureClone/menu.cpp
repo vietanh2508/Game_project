@@ -2,12 +2,12 @@
 #include <SDL_image.h>
 #include "menu.h"
 
-Menu::Menu(Renderer& renderer)
+Menu::Menu(Renderer& renderer, Audio& audio)
     : renderer(renderer), currentAction(Action::NONE),
     playTexture(nullptr), exitTexture(nullptr), pauseTexture(nullptr),
-    backgroundTexture(nullptr)
+    backgroundTexture(nullptr), audio(audio)
     , playButton({ 300, 300, 273, 36 }),
-    exitButtonMain({ 20, 556, 64, 64}),
+    exitButtonMain({ 20, 556, 64, 64 }),
     pauseButton({ 880, 20, 64, 64 }),
     exitButtonInGame({ 800, 20, 64, 64 })
 {
@@ -30,16 +30,20 @@ void Menu::HandleEvent(SDL_Event& event) {
         SDL_GetMouseState(&mouseX, &mouseY);
 
         if (IsMouseOver(playButton)) {
+            audio.PlaySound("button_click");
             currentAction = Action::PLAY;
         }
         else if (IsMouseOver(exitButtonMain)) {
+            audio.PlaySound("button_click");
             currentAction = Action::EXIT;
         }
         else if (IsMouseOver(pauseButton)) {
+            audio.PlaySound("button_click");
             isPaused = !isPaused;
             currentAction = Action::PAUSE;
         }
         else if (IsMouseOver(exitButtonInGame)) {
+            audio.PlaySound("button_click");
             currentAction = Action::EXIT;
         }
     }
@@ -67,7 +71,7 @@ bool Menu::IsMouseOver(const SDL_Rect& rect) const {
     SDL_GetMouseState(&mouseX, &mouseY);
     return (mouseX >= rect.x && mouseX <= rect.x + rect.w &&
         mouseY >= rect.y && mouseY <= rect.y + rect.h);
-}   
+}
 
 bool Menu::IsPaused() const {
     return isPaused;
