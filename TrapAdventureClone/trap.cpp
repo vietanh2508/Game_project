@@ -14,7 +14,7 @@ SDL_Texture* Trap::GetTexture() const {
 }
 
 void Trap::Update(float deltaTime, const SDL_Rect& playerRect, const std::vector<SDL_Rect>& walls) {
-    if (!isActivated) {
+    if (!isActivated ) {
         float dx = static_cast<float>(playerRect.x - rect.x);
         float dy = static_cast<float>(playerRect.y - rect.y);
         float distance = std::sqrt(dx * dx + dy * dy);

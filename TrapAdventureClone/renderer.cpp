@@ -1,4 +1,4 @@
-#include<SDL_image.h>
+﻿#include<SDL_image.h>
 #include<iostream>
 #include"renderer.h"
 
@@ -37,6 +37,9 @@ SDL_Texture* Renderer::LoadTexture(const std::string& path) {
     }
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+    if (!texture) {
+        std::cerr << "Lỗi tạo texture: " << SDL_GetError() << std::endl;
+    }
     return texture;
 }
 

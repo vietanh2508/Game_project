@@ -26,7 +26,7 @@ public:
 	SDL_Rect GetRect() const { return destRect; }
 	void SetFrameSize(int width, int height);
 	void SetDisplaySize(int width, int height);
-
+	bool isAlive;
 private:
 	void UpdateAnimation(float deltaTime);
 	void UpdateState();
@@ -41,7 +41,6 @@ private:
 	float frameTime, accumulator;
 	float velocityX, velocityY;
 	bool isFlipped, isOnGround;
-	bool isAlive;
 };
 
 #endif 

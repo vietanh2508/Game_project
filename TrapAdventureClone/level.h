@@ -39,6 +39,7 @@ public:
         const std::string& trapTexturePath,
         int tileWidth, int tileHeight
     );
+private:
     std::vector<Trap> traps;
     std::vector<Tile> tiles;
     int mapWidth;

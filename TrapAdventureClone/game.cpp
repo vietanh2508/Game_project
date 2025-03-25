@@ -3,13 +3,23 @@
 #include <iostream>
 #include "game.h"
 #include "level.h"
+#include "menu.h"
+#include "renderer.h"
+#include "player.h"
 
-Game::Game(): window(nullptr),isRunning(false),level(nullptr),renderer(),player() {}
+Game::Game()
+    : window(nullptr),
+    isRunning(false),
+    level(nullptr),
+    renderer(), player(), menu(nullptr) {
+    currentGameState = GameState::MENU;
+}
 
 Game:: ~Game() {
     if(level) delete level;
-	renderer.~Renderer() ;
+    if (menu) delete menu;
 	SDL_DestroyWindow(window);
+    IMG_Quit();
 	SDL_Quit();
 }
 
@@ -25,13 +35,27 @@ bool Game::init() {
         return false;
     }
 
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        std::cerr << "Lỗi khởi tạo SDL_image: " << IMG_GetError() << std::endl;
+        return false;
+
+    }
+
     if (!renderer.init(window)) {
         std::cerr << "Renderer could not be created!" << std::endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
         return false;
+    }  
+
+    gameOverTexture = renderer.LoadTexture("assets/image/game_over.png");
+    if (!gameOverTexture) {
+        std::cerr << "Failed to load game over texture!" << std::endl;
+        return false;
     }
 
+    menu = new Menu(renderer);
     level = new Level(
         renderer,
         "assets/map/wall.csv",      
@@ -44,7 +68,6 @@ bool Game::init() {
     player.LoadSprites(renderer.GetSDLRenderer(), "assets/image/player_spritesheet.png");
     player.SetFrameSize(32, 32);
     player.SetDisplaySize(16, 16);
-
     isRunning = true;
     return true;
 }
@@ -73,43 +96,106 @@ void Game::run() {
 
 void Game::handleInput() {
     SDL_Event event;
-    const Uint8* keystates = SDL_GetKeyboardState(nullptr);
-
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) isRunning = false;
+        if (event.type == SDL_QUIT) {
+            isRunning = false;
+        }
+        menu->HandleEvent(event);
     }
 
-    if (keystates[SDL_SCANCODE_LEFT]) {
-        player.MoveLeft();
+    // Xử lý trạng thái menu
+    if (currentGameState == GameState::MENU) {
+        Menu::Action action = menu->GetAction();
+        switch (action) {
+        case Menu::Action::PLAY:
+            currentGameState = GameState::PLAYING;
+            menu->ResetSelection();
+            break;
+        case Menu::Action::EXIT:
+            isRunning = false;
+            break;
+        default:
+            break;
+        }
     }
-    else if (keystates[SDL_SCANCODE_RIGHT]) {
-        player.MoveRight();
-    }
-    else {
-        player.Stop();
-    }
-
-    if (keystates[SDL_SCANCODE_SPACE]) {
-        player.Jump();
+    else if (currentGameState == GameState::PLAYING || currentGameState == GameState::PAUSED) {
+        if (menu->GetAction() == Menu::Action::PAUSE) {
+            if (menu->IsPaused()) {
+                currentGameState = GameState::PAUSED;
+            }
+            else {
+                currentGameState = GameState::PLAYING;
+            }
+            menu->ResetSelection();
+        }
+        if (menu->GetAction() == Menu::Action::EXIT) {
+            isRunning = false;
+        }
+        const Uint8* state = SDL_GetKeyboardState(NULL); 
+        if (state[SDL_SCANCODE_LEFT])
+        {
+            player.MoveLeft();
+        }
+        else if (state[SDL_SCANCODE_RIGHT])
+        {
+            player.MoveRight();
+        }
+        else {
+            player.Stop();
+        }
+        if (state[SDL_SCANCODE_SPACE] )
+        {
+            player.Jump();
+        }
     }
 }
 
 void Game::update(float deltaTime) {
-    if (level) {
-        const SDL_Rect playerRect = player.GetRect();
-        const std::vector<Tile>& levelTiles = level->GetTiles();
-        const std::vector<Trap>& levelTraps = level->GetTraps();
-        std::vector<SDL_Rect> tileRects;
-        for (const auto& tile : levelTiles) {
-            tileRects.push_back(tile.rect);
+    switch (currentGameState) {
+    case GameState::PLAYING: {
+        if (level) {
+            const SDL_Rect playerRect = player.GetRect();
+            const std::vector<Tile>& levelTiles = level->GetTiles();
+            const std::vector<Trap>& levelTraps = level->GetTraps();
+            std::vector<SDL_Rect> tileRects;
+
+            for (const auto& tile : levelTiles) {
+                tileRects.push_back(tile.rect);
+            }
+
+            level->Update(deltaTime, playerRect, tileRects);
+            player.Update(deltaTime, tileRects, levelTraps);
         }
-        level->Update(deltaTime, player.GetRect(), tileRects);
-        player.Update(deltaTime, tileRects, levelTraps);
+        break;
+    }
+
+    case GameState::PAUSED: {
+
+        break;
+    }
+
+    case GameState::MENU:
+    case GameState::GAME_OVER:
+    default:
+        break;
     }
 }
 void Game::render() {
     renderer.Clear();
-    level->Render(renderer);
-    player.Render(renderer.GetSDLRenderer());
+
+    if (currentGameState == GameState::MENU) {
+        menu->Render(Menu::State::MAIN_MENU);
+    }
+    else if (currentGameState == GameState::PLAYING || currentGameState == GameState::PAUSED) {
+        level->Render(renderer);
+        player.Render(renderer.GetSDLRenderer());
+        menu->Render(Menu::State::IN_GAME);
+
+        if (!player.isAlive) {
+            SDL_Rect gameOverRect = { 300, 200, 232, 123 }; 
+            renderer.RenderTexture(gameOverTexture, SDL_Rect{ 0, 0, 960, 640 }, gameOverRect);
+        }
+    }
+
     renderer.Present();
 }

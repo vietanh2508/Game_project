@@ -1,4 +1,5 @@
 ﻿#include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <iostream>
 #include <algorithm>
 #include "player.h"
@@ -15,7 +16,7 @@ Player::Player()
     currentFrame(0), totalFrames(4),
     frameTime(1.0f), accumulator(0.0f),
     velocityX(0), velocityY(0), collision(),
-    isFlipped(false), isOnGround(false) ,isAlive(true) {
+    isFlipped(false), isOnGround(false), isAlive(true) {
     destRect = { 0, 16, 32, 32 };
     srcRect = { 0, 0, 32, 32 };
 }
@@ -49,7 +50,7 @@ void Player::SetDisplaySize(int width, int height) {
 
 void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const std::vector<Trap>& traps) {
     if (!isAlive) return;
-    velocityY += 1000.0f * deltaTime;
+    velocityY += 900.0f * deltaTime;
     
     float newX = destRect.x + velocityX * deltaTime;
     float newY = destRect.y + velocityY * deltaTime;
@@ -62,9 +63,7 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const 
     };
 
     isOnGround = false;
-
     collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
-
     for (const auto& trap : traps) {
         if (collision.CheckCollision(destRect, trap.GetRect())) {
             isAlive = false;
@@ -82,7 +81,6 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles , const 
         if (destRect.x + destRect.w > SCREEN_WIDTH) destRect.x = SCREEN_WIDTH - destRect.w;
         if (destRect.y < 0) destRect.y = 0;
     }
-
 
     UpdateState();
     UpdateAnimation(deltaTime);
@@ -143,12 +141,16 @@ void Player::Render(SDL_Renderer* renderer) {
 }
 
 void Player::MoveLeft() {
-    if (isAlive) velocityX = -200.0f;
+    if (isAlive) {
+        velocityX = -200.0f;
+    }
     isFlipped = true;
 }
 
 void Player::MoveRight() {
-    if (isAlive) velocityX = 200.0f;
+    if (isAlive) {
+        velocityX = 200.0f;
+    }
     isFlipped = false;
 }
 

@@ -14,7 +14,6 @@ public:
 	void Present();
 	SDL_Texture* LoadTexture(const std::string& path);
 	void RenderTexture(SDL_Texture* texture, const SDL_Rect& srcRect, const SDL_Rect& destRect, bool flip = false);
-
 	SDL_Renderer* GetSDLRenderer() const { return renderer; }
 private:
 	SDL_Renderer* renderer;
