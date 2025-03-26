@@ -12,8 +12,8 @@ public:
         SLIDE_RIGHT,
         SLIDE_LEFT,
         FALL,
-        SHOOT_LEFT,   
-        SHOOT_RIGHT      
+        SHOOT_LEFT,
+        SHOOT_RIGHT
     };
 
     Trap(int x, int y, int w, int h, SDL_Texture* texture, Behavior behavior);
@@ -32,9 +32,9 @@ private:
     bool isFalling = false;
     bool isSlidingLeft = false;
     bool hasHitWall = false;
-    bool isSlidingRight = true; 
-    float slideSpeed = 200.0f;  
-    float fallSpeed = 400.0f;  
+    bool isSlidingRight = true;
+    float slideSpeed = 200.0f;
+    float fallSpeed = 400.0f;
     const float gravity = 980.0f;
     int initialX, initialY;
 };

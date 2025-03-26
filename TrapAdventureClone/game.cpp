@@ -8,11 +8,11 @@
 #include "player.h"
 
 Game::Game()
-    : window(nullptr),
-    isRunning(false),
-    level(nullptr),
-    renderer(), menu(nullptr) {
+    : window(nullptr), isRunning(false),level(nullptr), 
+    renderer(), menu(nullptr),destinationTexture(nullptr),
+    gameOverTexture(nullptr), victoryTexture(nullptr) {
     currentGameState = GameState::MENU;
+    SDL_Rect livesSrcRect = { 0, 0, 0, 0 };
 }
 
 Game:: ~Game() {

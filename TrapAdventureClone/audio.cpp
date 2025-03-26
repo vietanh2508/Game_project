@@ -37,12 +37,6 @@ void Audio::PlaySound(const std::string& name, int loops) {
     }
 }
 
-void Audio::StopSound(const std::string& name) {
-    // You'll need to find the channel the sound is playing on to stop it correctly
-    // This is a more advanced feature
-    // You might need to track which channel a specific sound is playing on when you call PlaySound
-}
-
 void Audio::StopAllSounds() {
-    Mix_HaltChannel(-1); // Stop all channels
+    Mix_HaltChannel(-1);
 }

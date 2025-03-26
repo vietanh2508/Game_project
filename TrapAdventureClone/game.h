@@ -33,7 +33,7 @@ private:
     Renderer renderer;
     Menu* menu;
     GameState currentGameState;
-    Player* player;
+    Player* player = nullptr;
     Audio audio;
     SDL_Texture* gameOverTexture;
     SDL_Texture* victoryTexture; 

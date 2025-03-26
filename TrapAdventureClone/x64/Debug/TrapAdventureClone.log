@@ -1,11 +1,2 @@
-﻿  game.cpp
-F:\TrapAdventureClone\TrapAdventureClone\game.cpp(40,22): warning C4566: character represented by universal-character-name '\u1ED7' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\game.cpp(40,22): warning C4566: character represented by universal-character-name '\u1EDF' cannot be represented in the current code page (1252)
-F:\TrapAdventureClone\TrapAdventureClone\game.cpp(40,22): warning C4566: character represented by universal-character-name '\u1EA1' cannot be represented in the current code page (1252)
-  level.cpp
-F:\TrapAdventureClone\TrapAdventureClone\level.cpp(57,49): warning C4101: 'e': unreferenced local variable
-  main.cpp
-  player.cpp
-  trap.cpp
-  Generating Code...
+﻿  trap.cpp
   TrapAdventureClone.vcxproj -> F:\TrapAdventureClone\x64\Debug\TrapAdventureClone.exe

@@ -35,7 +35,7 @@ bool Level::LoadLevel(
     const std::string& trapPath,
     const std::string& trapTexturePath,
     int tileWidth, int tileHeight
- ) {
+) {
     std::ifstream file(mapPath);
     if (!file.is_open()) {
         std::cerr << "Failed to open map file: " << mapPath << std::endl;
@@ -82,7 +82,7 @@ bool Level::LoadLevel(
             }
         }
     }
-        
+
     tileTextures.clear();
     for (int tileId : uniqueTileIds) {
         std::string tilePath = tileBasePath + std::to_string(tileId) + ".png";
@@ -104,8 +104,8 @@ bool Level::LoadLevel(
                 newTile.texture = tileTextures[tileId];
             }
 
-            newTile.rect.x = static_cast<int>(x) * tileWidth;  
-            newTile.rect.y = static_cast<int>(y) * tileHeight; 
+            newTile.rect.x = static_cast<int>(x) * tileWidth;
+            newTile.rect.y = static_cast<int>(y) * tileHeight;
             newTile.rect.w = tileWidth;
             newTile.rect.h = tileHeight;
             tiles.push_back(newTile);
@@ -113,10 +113,10 @@ bool Level::LoadLevel(
     }
 
     std::map<int, SDL_Texture*> trapTextures;
-    trapTextures[0] = renderer.LoadTexture(trapTexturePath + "0.png"); 
-    trapTextures[2] = renderer.LoadTexture(trapTexturePath + "2.png"); 
+    trapTextures[0] = renderer.LoadTexture(trapTexturePath + "0.png");
+    trapTextures[2] = renderer.LoadTexture(trapTexturePath + "2.png");
     trapTextures[3] = renderer.LoadTexture(trapTexturePath + "2.png");
-    trapTextures[8] = renderer.LoadTexture(trapTexturePath + "8.png"); 
+    trapTextures[8] = renderer.LoadTexture(trapTexturePath + "8.png");
     trapTextures[10] = renderer.LoadTexture(trapTexturePath + "10.png");
     trapTextures[11] = renderer.LoadTexture(trapTexturePath + "10.png");
 
@@ -134,7 +134,7 @@ bool Level::LoadLevel(
         int x = 0;
         while (std::getline(ss, cell, ',')) {
             int cellValue = std::stoi(cell);
-            if (cellValue == 0 || cellValue == 2 || cellValue  == 3 || cellValue == 8 || cellValue == 10 || cellValue == 11 ) {
+            if (cellValue == 0 || cellValue == 2 || cellValue == 3 || cellValue == 8 || cellValue == 10 || cellValue == 11) {
                 SDL_Texture* texture = trapTextures[cellValue];
                 if (texture) {
                     int trapWidth, trapHeight;
@@ -143,25 +143,25 @@ bool Level::LoadLevel(
                     Trap::Behavior behavior;
 
                     switch (cellValue) {
-                    case 0: 
+                    case 0:
                         trapWidth = 16;
                         trapHeight = 32;
                         behavior = Trap::Behavior::SHOOT_LEFT;
-                        adjustedX += tileWidth - trapWidth; 
+                        adjustedX += tileWidth - trapWidth;
                         break;
-                    case 2: 
+                    case 2:
                         trapWidth = 32;
                         trapHeight = 16;
                         behavior = Trap::Behavior::SLIDE_RIGHT;
                         adjustedY += tileHeight - trapHeight;
                         break;
-                    case 3: 
+                    case 3:
                         trapWidth = 32;
                         trapHeight = 16;
                         behavior = Trap::Behavior::SLIDE_LEFT;
-                        adjustedY += tileHeight - trapHeight; 
+                        adjustedY += tileHeight - trapHeight;
                         break;
-                    case 8: 
+                    case 8:
                         trapWidth = 16;
                         trapHeight = 32;
                         behavior = Trap::Behavior::SHOOT_RIGHT;
