@@ -21,7 +21,7 @@ public:
     SDL_Rect GetRect() const;
     SDL_Texture* GetTexture() const;
     void Update(float deltaTime, const SDL_Rect& playerRect, const std::vector<SDL_Rect>& walls);
-
+    void Reset();
 private:
     SDL_Rect rect;
     SDL_Texture* texture;
@@ -36,7 +36,7 @@ private:
     float slideSpeed = 200.0f;  
     float fallSpeed = 400.0f;  
     const float gravity = 980.0f;
-    int initialX;
+    int initialX, initialY;
 };
 
 #endif

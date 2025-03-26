@@ -15,7 +15,7 @@ Player::Player(Audio& audio)
     frameWidth(32), frameHeight(32),
     currentFrame(0), totalFrames(4),
     frameTime(1.0f), accumulator(0.0f),
-    velocityX(0), velocityY(0), collision(),
+    velocityX(0), velocityY(0), collision(), lives(10), livesTexture(nullptr),
     isFlipped(false), isOnGround(false), isAlive(true), audio(audio) {
     destRect = { 0, 16, 32, 32 };
     srcRect = { 0, 0, 32, 32 };
@@ -23,6 +23,7 @@ Player::Player(Audio& audio)
 
 Player :: ~Player() {
     if (texture) SDL_DestroyTexture(texture);
+    if (livesTexture) SDL_DestroyTexture(livesTexture);
 }
 
 void Player::LoadSprites(SDL_Renderer* renderer, const std::string& path) {
@@ -36,6 +37,18 @@ void Player::LoadSprites(SDL_Renderer* renderer, const std::string& path) {
     if (!texture) {
         std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
     }
+    SDL_Surface* livesSurface = IMG_Load("assets/image/lives_spritesheet.png"); 
+    if (!livesSurface) {
+        std::cerr << "Failed to load lives spritesheet: " << IMG_GetError() << std::endl;
+        return;
+    }
+    livesTexture = SDL_CreateTextureFromSurface(renderer, livesSurface);
+    SDL_FreeSurface(livesSurface);
+    if (!livesTexture) {
+        std::cerr << "Failed to create lives texture: " << SDL_GetError() << std::endl;
+    }
+
+    livesSrcRect = { 0, 0, 32, 32 };
 }
 
 void Player::SetFrameSize(int width, int height) {
@@ -64,12 +77,22 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const s
 
     isOnGround = false;
     collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
+    bool hitTrap = false;
     for (const auto& trap : traps) {
-        if (collision.CheckCollision(destRect, trap.GetRect())) {
-            isAlive = false;
+        if (collision.CheckCollision(destRect, trap.GetRect())&&!hitTrap) {
+            hitTrap = true;
+            lives--;
+
+            if (lives > 0) {
+                isAlive = true;
+            }
+            else {
+                isAlive = false; 
+                audio.PlaySound("death");
+
+            }
             velocityX = 0;
             velocityY = 0;
-            audio.PlaySound("death");
             break;
         }
     }
@@ -112,7 +135,7 @@ void Player::UpdateAnimation(float deltaTime) {
         srcRect.y = 0;
         frameTime = 0.1f;
         totalFrames = 4;
-        if (!Mix_Playing(-1)) // Check if any channel is currently playing sound
+        if (!Mix_Playing(-1)) 
         {
             audio.PlaySound("run");
         }
@@ -143,6 +166,13 @@ void Player::Render(SDL_Renderer* renderer) {
         SDL_RendererFlip flip = isFlipped ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
         SDL_RenderCopyEx(renderer, texture, &srcRect, &destRect, 0.0, nullptr, flip);
     }
+    if (livesTexture) {
+        for (int i = 0; i < lives; ++i) {  
+            SDL_Rect livesDestRect = { 10 + i * 40, 10, 32, 32 }; 
+            livesSrcRect.x = i * 32;
+            SDL_RenderCopy(renderer, livesTexture, &livesSrcRect, &livesDestRect);
+        }
+    }
 }
 
 void Player::MoveLeft() {
@@ -169,4 +199,11 @@ void Player::Jump() {
 
 void Player::Stop() {
     velocityX = 0;
+}
+
+void Player::ResetPosition() {
+    destRect.x = 0; 
+    destRect.y = 16; 
+    velocityX = 0;
+    velocityY = 0;
 }

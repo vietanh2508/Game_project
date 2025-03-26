@@ -6,7 +6,7 @@
 #include<string>
 #include "collision.h"
 #include "trap.h"
-#include "audio.h"  // Include Audio header
+#include "audio.h"  
 
 class Player {
 public:
@@ -27,7 +27,9 @@ public:
     SDL_Rect GetRect() const { return destRect; }
     void SetFrameSize(int width, int height);
     void SetDisplaySize(int width, int height);
+    void ResetPosition();
     bool isAlive;
+    int lives;
 private:
     void UpdateAnimation(float deltaTime);
     void UpdateState();
@@ -43,6 +45,8 @@ private:
     float velocityX, velocityY;
     bool isFlipped, isOnGround;
     Audio& audio;  
+    SDL_Texture* livesTexture;
+    SDL_Rect livesSrcRect;
 };
 
 #endif

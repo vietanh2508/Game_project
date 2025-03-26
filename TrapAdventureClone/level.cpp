@@ -225,3 +225,9 @@ void Level::Update(float deltaTime, const SDL_Rect& playerRect, const std::vecto
         trap.Update(deltaTime, playerRect, walls);
     }
 }
+
+void Level::ResetTraps() {
+    for (auto& trap : traps) {
+        trap.Reset();
+    }
+}

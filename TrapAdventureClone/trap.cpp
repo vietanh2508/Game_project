@@ -3,7 +3,7 @@
 #include <cmath>
 
 Trap::Trap(int x, int y, int w, int h, SDL_Texture* texture, Behavior behavior)
-    : rect{ x, y, w, h }, texture(texture), behavior(behavior) , initialX(x) {}
+    : rect{ x, y, w, h }, texture(texture), behavior(behavior) , initialX(x) , initialY(y){}
 
 SDL_Rect Trap::GetRect() const {
     return rect;
@@ -88,4 +88,12 @@ void Trap::Update(float deltaTime, const SDL_Rect& playerRect, const std::vector
     default: 
         break;
     }
+}
+
+void Trap::Reset() {
+    rect.x = initialX;
+    rect.y = initialY;
+    isActivated = false;
+    hasHitWall = false;
+    fallSpeed = 400.0f;
 }

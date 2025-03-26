@@ -54,6 +54,16 @@ bool Game::init() {
         std::cerr << "Failed to load game over texture!" << std::endl;
         return false;
     }
+    victoryTexture = renderer.LoadTexture("assets/image/victory.png"); 
+    if (!victoryTexture) {
+        std::cerr << "Failed to load victory texture!" << std::endl;
+        return false;
+    }
+    destinationTexture = renderer.LoadTexture("assets/image/destination.png"); 
+    if (!destinationTexture) {
+        std::cerr << "Failed to load destination texture!" << std::endl;
+        return false;
+    }
 
     if (!audio.Init()) {
         return false;
@@ -64,6 +74,8 @@ bool Game::init() {
     audio.LoadSound("run", "assets/sound/run.wav");
     audio.LoadSound("jump", "assets/sound/jump.wav");
     audio.LoadSound("death", "assets/sound/death.wav");
+    audio.LoadSound("victory", "assets/sound/victory.wav");
+    audio.LoadSound("game_over", "assets/sound/game_over.wav");
 
     menu = new Menu(renderer, audio);  
     level = new Level(
@@ -175,6 +187,20 @@ void Game::update(float deltaTime) {
 
             level->Update(deltaTime, playerRect, tileRects);
             player->Update(deltaTime, tileRects, levelTraps);
+
+            if (playerRect.x > (30 - 1) * 32 && playerRect.y / 32 == 10 ) { 
+                currentGameState = GameState::VICTORY;
+                audio.PlaySound("victory");
+            }
+
+            if (player->lives < previousLives) {
+                player->ResetPosition();
+                level->ResetTraps();
+                previousLives = player->lives;
+            }
+            if (!player->isAlive) {
+                previousLives = player->lives;
+            }
         }
         break;
     }
@@ -201,11 +227,23 @@ void Game::render() {
         player->Render(renderer.GetSDLRenderer());
         menu->Render(Menu::State::IN_GAME);
 
+        SDL_Rect destinationRect = { (30 - 1) * 32, 10 * 32, 32, 32 }; 
+        renderer.RenderTexture(destinationTexture, SDL_Rect{ 0, 0, 32, 32 }, destinationRect);
+
         if (!player->isAlive) {
-            SDL_Rect gameOverRect = { 300, 200, 232, 123 };
+            static bool hasPlayed = false;
+            if (!hasPlayed) {
+                audio.PlaySound("game_over");
+                hasPlayed = true;
+            }
+            SDL_Rect gameOverRect = { 0, 0, 960, 640 };
             renderer.RenderTexture(gameOverTexture, SDL_Rect{ 0, 0, 960, 640 }, gameOverRect);
         }
     }
-
+    
+    else if (currentGameState == GameState::VICTORY) {
+        SDL_Rect victoryRect = { 0, 0, 960, 640 };
+        renderer.RenderTexture(victoryTexture, SDL_Rect{ 0, 0, 960, 640 }, victoryRect);
+    }
     renderer.Present();
 }

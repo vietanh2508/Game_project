@@ -18,7 +18,8 @@ public:
         MENU,
         PLAYING,
         PAUSED,
-        GAME_OVER
+        GAME_OVER,
+        VICTORY
     };
 
     bool init();
@@ -35,9 +36,12 @@ private:
     Player* player;
     Audio audio;
     SDL_Texture* gameOverTexture;
+    SDL_Texture* victoryTexture; 
+    SDL_Texture* destinationTexture;
     const float TARGET_FPS = 60.0f;
     const Uint32 TARGET_FRAME_TIME = 1000 / 60;
     bool isRunning;
+    int previousLives = 10;
 };
 
 #endif

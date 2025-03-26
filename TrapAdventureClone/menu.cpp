@@ -53,7 +53,7 @@ void Menu::Render(State state) {
     if (state == State::MAIN_MENU) {
         SDL_Rect backgroundRect = { 0, 0, 960, 640 };
         renderer.RenderTexture(backgroundTexture, SDL_Rect{ 0, 0, 960, 640 }, backgroundRect);
-        renderer.RenderTexture(playTexture, SDL_Rect{ 0,0,160,80 }, playButton);
+        renderer.RenderTexture(playTexture, SDL_Rect{ 0,0,273,36 }, playButton);
         renderer.RenderTexture(exitTexture, SDL_Rect{ 0,0,160,80 }, exitButtonMain);
     }
     else {
