@@ -4,15 +4,12 @@
 #include "game.h"
 #include "level.h"
 #include "menu.h"
-#include "renderer.h"
-#include "player.h"
 
 Game::Game()
     : window(nullptr), isRunning(false),level(nullptr), 
     renderer(), menu(nullptr),destinationTexture(nullptr),
     gameOverTexture(nullptr), victoryTexture(nullptr) {
     currentGameState = GameState::MENU;
-    SDL_Rect livesSrcRect = { 0, 0, 0, 0 };
 }
 
 Game:: ~Game() {
@@ -125,7 +122,6 @@ void Game::handleInput() {
         menu->HandleEvent(event);
     }
 
-    // Xử lý trạng thái menu
     if (currentGameState == GameState::MENU) {
         Menu::Action action = menu->GetAction();
         switch (action) {

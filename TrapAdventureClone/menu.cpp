@@ -26,9 +26,6 @@ Menu::~Menu() {
 
 void Menu::HandleEvent(SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN) {
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-
         if (IsMouseOver(playButton)) {
             audio.PlaySound("button_click");
             currentAction = Action::PLAY;
