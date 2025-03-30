@@ -6,6 +6,7 @@
 #include <set>
 #include "renderer.h"
 
+// Constructor: Gọi LoadLevel để tải level từ file
 Level::Level(
     Renderer& renderer,
     const std::string& mapPath,
@@ -20,6 +21,7 @@ Level::Level(
     }
 }
 
+// Destructor: Giải phóng bộ nhớ
 Level::~Level() {
     for (auto& it : tileTextures) {
         if (it.second) {
@@ -28,6 +30,7 @@ Level::~Level() {
     }
 }
 
+// LoadLevel: Tải level từ file
 bool Level::LoadLevel(
     Renderer& renderer,
     const std::string& mapPath,
@@ -36,23 +39,25 @@ bool Level::LoadLevel(
     const std::string& trapTexturePath,
     int tileWidth, int tileHeight
 ) {
+    // 1. Đọc dữ liệu map từ file CSV
     std::ifstream file(mapPath);
     if (!file.is_open()) {
         std::cerr << "Failed to open map file: " << mapPath << std::endl;
         return false;
     }
 
+    // Đọc từng dòng từ file
     std::vector<std::vector<int>> mapData;
     std::string line;
     while (std::getline(file, line)) {
-        std::vector<int> row;
+        std::vector<int> row;// Lưu trữ tile ID của từng ô trong dòng
         std::stringstream ss(line);
-        std::string tileIdStr;
+        std::string tileIdStr;  // Lưu trữ tile ID dưới dạng chuỗi
 
         while (std::getline(ss, tileIdStr, ',')) {
-            tileIdStr.erase(std::remove_if(tileIdStr.begin(), tileIdStr.end(), ::isspace), tileIdStr.end());
+            tileIdStr.erase(std::remove_if(tileIdStr.begin(), tileIdStr.end(), ::isspace), tileIdStr.end());// Xóa khoảng trắng
             try {
-                row.push_back(std::stoi(tileIdStr));
+                row.push_back(std::stoi(tileIdStr));// Chuyển chuỗi thành số nguyên và thêm vào vector
             }
             catch (const std::invalid_argument& e) {
                 std::cerr << "Invalid tile ID: " << tileIdStr << std::endl;
@@ -60,21 +65,14 @@ bool Level::LoadLevel(
                 return false;
             }
         }
-        mapData.push_back(row);
+        mapData.push_back(row); // Thêm dòng vào dữ liệu map    
     }
     file.close();
 
     size_t actualMapHeight = mapData.size();
     size_t actualMapWidth = (actualMapHeight > 0) ? mapData[0].size() : 0;
 
-    for (const auto& row : mapData) {
-        if (row.size() != actualMapWidth) {
-            std::cerr << "Error: Inconsistent column count in CSV file!" << std::endl;
-            return false;
-        }
-    }
-
-    std::set<int> uniqueTileIds;
+    std::set<int> uniqueTileIds; // Sử dụng set để lưu trữ các tile ID duy nhấ
     for (const auto& row : mapData) {
         for (int tileId : row) {
             if (tileId != -1) {
@@ -83,36 +81,35 @@ bool Level::LoadLevel(
         }
     }
 
-    tileTextures.clear();
     for (int tileId : uniqueTileIds) {
-        std::string tilePath = tileBasePath + std::to_string(tileId) + ".png";
-        SDL_Texture* texture = renderer.LoadTexture(tilePath);
+        std::string tilePath = tileBasePath + std::to_string(tileId) + ".png"; // Tạo đường dẫn đến file texture
+        SDL_Texture* texture = renderer.LoadTexture(tilePath); // Tải texture
         if (!texture) {
             std::cerr << "Failed to load tile texture: " << tilePath << std::endl;
         }
-        tileTextures[tileId] = texture;
+        tileTextures[tileId] = texture;// Lưu texture vào map
     }
 
-    tiles.clear();
     for (size_t y = 0; y < actualMapHeight; ++y) {
         for (size_t x = 0; x < actualMapWidth; ++x) {
-            int tileId = mapData[y][x];
+            int tileId = mapData[y][x];// Lấy tile ID từ dữ liệu map
             if (tileId == -1) continue;
 
-            Tile newTile;
-            if (tileTextures.find(tileId) != tileTextures.end()) {
-                newTile.texture = tileTextures[tileId];
+            Tile newTile; // Tạo một tile mới
+            if (tileTextures.find(tileId) != tileTextures.end()) { // Kiểm tra xem texture của tile đã được tải chưa
+                newTile.texture = tileTextures[tileId]; // Gán texture cho tile
             }
 
-            newTile.rect.x = static_cast<int>(x) * tileWidth;
-            newTile.rect.y = static_cast<int>(y) * tileHeight;
-            newTile.rect.w = tileWidth;
-            newTile.rect.h = tileHeight;
-            tiles.push_back(newTile);
+            newTile.rect.x = static_cast<int>(x) * tileWidth; // Tính toán vị trí X của tile
+            newTile.rect.y = static_cast<int>(y) * tileHeight; // Tính toán vị trí Y của tile
+            newTile.rect.w = tileWidth;   // Gán kích thước cho tile
+            newTile.rect.h = tileHeight;   // Gán kích thước cho tile
+            tiles.push_back(newTile); // Thêm tile vào danh sách các tile
         }
     }
 
     std::map<int, SDL_Texture*> trapTextures;
+    // Load các texture tương ứng với từng loại bẫy
     trapTextures[0] = renderer.LoadTexture(trapTexturePath + "0.png");
     trapTextures[2] = renderer.LoadTexture(trapTexturePath + "2.png");
     trapTextures[3] = renderer.LoadTexture(trapTexturePath + "2.png");
@@ -128,20 +125,24 @@ bool Level::LoadLevel(
 
     std::string lineT;
     int y = 0;
+    // Đọc từng dòng của file
     while (std::getline(trapFile, lineT)) {
         std::stringstream ss(lineT);
         std::string cell;
         int x = 0;
+        // Đọc từng giá trị trong dòng, phân tách bởi dấu phẩy
         while (std::getline(ss, cell, ',')) {
             int cellValue = std::stoi(cell);
+            // Kiểm tra xem giá trị ô có phải là loại bẫy hợp lệ hay không
             if (cellValue == 0 || cellValue == 2 || cellValue == 3 || cellValue == 8 || cellValue == 10 || cellValue == 11) {
-                SDL_Texture* texture = trapTextures[cellValue];
+                SDL_Texture* texture = trapTextures[cellValue];// Lấy texture tương ứng
                 if (texture) {
                     int trapWidth, trapHeight;
-                    int adjustedX = x * tileWidth;
-                    int adjustedY = y * tileHeight;
+                    int adjustedX = x * tileWidth; // Tính toán vị trí x dựa trên ô
+                    int adjustedY = y * tileHeight; // Tính toán vị trí y dựa trên ô
                     Trap::Behavior behavior;
 
+                    // Xác định thuộc tính của từng loại bẫy
                     switch (cellValue) {
                     case 0:
                         trapWidth = 16;
@@ -183,6 +184,7 @@ bool Level::LoadLevel(
                         break;
                     }
 
+                    // Thêm bẫy vào danh sách với các thuộc tính đã thiết lập
                     traps.emplace_back(
                         adjustedX,
                         adjustedY,
@@ -193,26 +195,27 @@ bool Level::LoadLevel(
                     );
                 }
             }
-            x++;
+            x++; // Tăng vị trí x cho ô tiếp theo
         }
-        y++;
+        y++; // Tăng vị trí y cho dòng tiếp theo
     }
     trapFile.close();
 
     return true;
 }
 
+// Render: Vẽ level lên màn hình
 void Level::Render(Renderer& renderer) {
     for (const auto& tile : tiles) {
         if (tile.texture) {
-            SDL_Rect srcRect = { 0, 0, tileWidth, tileHeight };
-            renderer.RenderTexture(tile.texture, srcRect, tile.rect);
+            SDL_Rect srcRect = { 0, 0, tileWidth, tileHeight }; // Lấy toàn bộ texture
+            renderer.RenderTexture(tile.texture, srcRect, tile.rect); // Vẽ tile
         }
     }
 
     for (const auto& trap : traps) {
-        SDL_Rect srcRect = { 0, 0, trap.GetRect().w, trap.GetRect().h };
-        renderer.RenderTexture(trap.GetTexture(), srcRect, trap.GetRect());
+        SDL_Rect srcRect = { 0, 0, trap.GetRect().w, trap.GetRect().h }; // Lấy toàn bộ texture của trap
+        renderer.RenderTexture(trap.GetTexture(), srcRect, trap.GetRect()); // Vẽ trap
     }
 }
 

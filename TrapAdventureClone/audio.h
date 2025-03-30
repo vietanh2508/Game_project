@@ -1,4 +1,4 @@
-#ifndef AUDIO_H
+﻿#ifndef AUDIO_H
 #define AUDIO_H
 
 #include <SDL_mixer.h>
@@ -7,16 +7,17 @@
 
 class Audio {
 public:
-    Audio();
-    ~Audio();
+    Audio(); // Constructor
+    ~Audio();// Destructor
 
-    bool Init(); 
-    void LoadSound(const std::string& name, const std::string& filepath);
-    void PlaySound(const std::string& name, int loops = 0);
-    void StopAllSounds();
+    bool Init();  // Khởi tạo SDL_mixer
+    void LoadSound(const std::string& name, const std::string& filepath);// Tải âm thanh từ file
+    void PlaySound(const std::string& name, int loops = 0);// Phát âm thanh
+    void StopAllSounds();// Dừng tất cả các âm thanh đang phát
+
 
 private:
-    std::map<std::string, Mix_Chunk*> sounds;
+    std::map<std::string, Mix_Chunk*> sounds;// Lưu trữ các âm thanh đã tải
 };
 
 #endif
