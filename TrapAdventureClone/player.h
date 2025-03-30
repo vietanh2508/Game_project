@@ -17,6 +17,8 @@ public:
 
     void LoadSprites(SDL_Renderer* renderer, const std::string& path);
     void Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const std::vector<Trap>& traps);
+    void UpdateAnimation(float deltaTime);
+    void UpdateState();
     void Render(SDL_Renderer* renderer);
 
     void MoveLeft();
@@ -31,9 +33,6 @@ public:
     bool isAlive;
     int lives;
 private:
-    void UpdateAnimation(float deltaTime);
-    void UpdateState();
-
     Collision collision;
     SDL_Texture* texture;
     SDL_Rect srcRect;

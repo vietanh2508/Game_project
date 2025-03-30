@@ -1,8 +1,8 @@
 ﻿#include "collision.h"
+#include <iostream>
 
 bool Collision::HandleCollisions(SDL_Rect& playerRect, float& velocityX, float& velocityY, bool& isOnGround, const std::vector<SDL_Rect>& tiles) {
     bool collided = false;
-    isOnGround = false;
 
     for (const auto& tile : tiles) {
         if (CheckCollision(playerRect, tile)) {
@@ -21,14 +21,13 @@ bool Collision::CheckCollision(const SDL_Rect& a, const SDL_Rect& b) const {
 }
 
 void Collision::ResolveCollision(SDL_Rect& playerRect, float& velocityX, float& velocityY, bool& isOnGround, const SDL_Rect& tile) {
-
     float overlapX = std::min(
-        playerRect.x + playerRect.w - tile.x,
-        tile.x + tile.w - playerRect.x
+        static_cast<float>(playerRect.x + playerRect.w - tile.x),  
+        static_cast<float>(tile.x + tile.w - playerRect.x)   
     );
     float overlapY = std::min(
-        playerRect.y + playerRect.h - tile.y,
-        tile.y + tile.h - playerRect.y
+        static_cast<float>(playerRect.y + playerRect.h - tile.y), 
+        static_cast<float>(tile.y + tile.h - playerRect.y)  
     );
 
     if (overlapX < overlapY) {
@@ -36,15 +35,14 @@ void Collision::ResolveCollision(SDL_Rect& playerRect, float& velocityX, float& 
         playerRect.x = (playerRect.x < tile.x) ? tile.x - playerRect.w : tile.x + tile.w;
     }
     else {
-        if (playerRect.y + playerRect.h <= tile.y + (tile.h / 2)) {
+        if (velocityY > 0) {
             isOnGround = true;
             velocityY = 0;
             playerRect.y = tile.y - playerRect.h;
         }
-        else {
+        else if (velocityY < 0) {
             velocityY = 0;
             playerRect.y = tile.y + tile.h;
-            isOnGround = false;
         }
     }
 }

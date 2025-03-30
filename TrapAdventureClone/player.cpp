@@ -17,6 +17,7 @@ Player::Player(Audio& audio)
     frameTime(1.0f), accumulator(0.0f),
     velocityX(0), velocityY(0), collision(), lives(10), livesTexture(nullptr),
     isFlipped(false), isOnGround(false), isAlive(true), audio(audio) {
+    livesSrcRect = { 0, 0, 0, 0 };
     destRect = { 0, 16, 32, 32 };
     srcRect = { 0, 0, 32, 32 };
 }
@@ -75,7 +76,6 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const s
         destRect.h
     };
 
-    isOnGround = false;
     collision.HandleCollisions(tempRect, velocityX, velocityY, isOnGround, tiles);
     bool hitTrap = false;
     for (const auto& trap : traps) {
@@ -105,7 +105,6 @@ void Player::Update(float deltaTime, const std::vector<SDL_Rect>& tiles, const s
         if (destRect.x + destRect.w > SCREEN_WIDTH) destRect.x = SCREEN_WIDTH - destRect.w;
         if (destRect.y < 0) destRect.y = 0;
     }
-
     UpdateState();
     UpdateAnimation(deltaTime);
 }
