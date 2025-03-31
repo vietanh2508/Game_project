@@ -1,7 +1,7 @@
 Họ và tên : Vũ Việt Anh 
 MSV : 24020033
 Chủ đề game : Đây là bản sao Trap Adventure, nơi người chơi điều hướng một màn chơi nguy hiểm đầy bẫy, cố gắng đến đích.
-Ngưỡng điểm : 8.5
+Ngưỡng điểm : 9
 Lý do bảo vệ :
 Game có các tính năng tự làm , tự học sau :
 *   **Hệ thống va chạm AABB:** Tự cài đặt thuật toán va chạm AABB (Axis-Aligned Bounding Box) để phát hiện va chạm giữa player và các tiles, traps.
