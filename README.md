@@ -17,6 +17,7 @@ Các nguồn tham khảo :
 *   **Âm thanh:** sử dụng Developer Tools (F12) của trình duyệt để tải một số hiệu ứng âm thanh từ trang: https://www.gamepix.com/play/trap-adventure-2
 *   **Hình ảnh player,wall,trap:** :Tự làm từ trang web : https://www.pixilart.com/
 *   **Ảnh victory:**  https://www.pinterest.com/
+
 Mức độ sử dụng AI:(60%)
 *   Sử dụng google AI để tạo khung chương trình
 *   Sử dụng AI để gỡ lỗi
